@@ -1,3 +1,5 @@
+import 'package:fidelityride/constant.dart';
+import 'package:fidelityride/route/routePath.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -7,62 +9,56 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 01,
+        title: Row(
+          children: [
+            Image.asset(
+              AppData.appicon,
+              width: 150,
+              height: 50,
+              fit: BoxFit.contain,
+            ),
+          ],
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Uber logo
-              Text(
-                "Uber",
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Search bar
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    RoutePath.searchScreen,
+                  ); // 👈 navigate
+                },
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          color: Colors.grey[200],
+                        ),
+                        child: Row(
+                          children: const [
+                            Icon(Icons.search, color: Colors.grey),
+                            SizedBox(width: 8),
+                            Text("Where to?", style: TextStyle(fontSize: 16)),
+                          ],
+                        ),
                       ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        color: Colors.grey[200],
-                      ),
-                      child: Row(
-                        children: const [
-                          Icon(Icons.search, color: Colors.grey),
-                          SizedBox(width: 8),
-                          Text("Where to?", style: TextStyle(fontSize: 16)),
-                        ],
-                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: Colors.grey[200],
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.schedule, size: 18, color: Colors.black),
-                        SizedBox(width: 4),
-                        Text("Later", style: TextStyle(fontSize: 14)),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
 
               const SizedBox(height: 20),
@@ -171,12 +167,12 @@ class HomeScreen extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               color: Colors.orange.shade100,
-              image: const DecorationImage(
-                image: AssetImage(
-                  'assets/intercity.jpg',
-                ), // Add this image in assets
-                fit: BoxFit.cover,
-              ),
+              // image: const DecorationImage(
+              //   image: AssetImage(
+              //     'assets/intercity.jpg',
+              //   ), // Add this image in assets
+              //   fit: BoxFit.cover,
+              // ),
             ),
           ),
         ),
@@ -187,12 +183,12 @@ class HomeScreen extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               color: Colors.blue.shade100,
-              image: const DecorationImage(
-                image: AssetImage(
-                  'assets/premier.jpg',
-                ), // Add this image in assets
-                fit: BoxFit.cover,
-              ),
+              // image: const DecorationImage(
+              //   image: AssetImage(
+              //     'assets/premier.jpg',
+              //   ), // Add this image in assets
+              //   fit: BoxFit.cover,
+              // ),
             ),
           ),
         ),
