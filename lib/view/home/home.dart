@@ -1,18 +1,20 @@
 import 'package:fidelityride/constant.dart';
 import 'package:fidelityride/route/routePath.dart';
+import 'package:fidelityride/theme/colors.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColor.backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 01,
+        backgroundColor: AppColor.whiteColor,
+        elevation: 2,
         title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Image.asset(
               AppData.appicon,
@@ -20,15 +22,25 @@ class HomeScreen extends StatelessWidget {
               height: 50,
               fit: BoxFit.contain,
             ),
+            IconButton(
+              icon: const Icon(
+                Icons.notifications_none,
+                color: AppColor.mainColor,
+              ),
+              onPressed:
+                  () => Navigator.of(context).pushNamed(RoutePath.notification),
+            ),
           ],
         ),
       ),
+
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Search Bar
               GestureDetector(
                 onTap: () {
                   Navigator.pushNamed(
@@ -61,38 +73,91 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 20),
-
+              const SizedBox(height: 24),
               // Recent locations
               _recentLocation("Nagapattinam", "Tamil Nadu"),
               const SizedBox(height: 10),
               _recentLocation("Karaikal", "Puducherry"),
+              const SizedBox(height: 12),
 
-              const SizedBox(height: 20),
-
-              // Suggestions
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
-                    "Suggestions",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  Text("See all", style: TextStyle(color: Colors.blue)),
-                ],
+              // Quick Types
+              Text(
+                'Book a Ride',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
               const SizedBox(height: 12),
-              _suggestionCards(),
 
-              const SizedBox(height: 20),
-
-              // Promotions
-              const Text(
-                "Ride as you like it",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              SizedBox(
+                height: 100,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    _buildTypeCard(
+                      context,
+                      'Bike',
+                      'assets/images/bike_icon.png',
+                      Colors.white,
+                      RoutePath.searchScreen,
+                    ),
+                    _buildTypeCard(
+                      context,
+                      'Cab',
+                      'assets/images/car_icon.png',
+                      Colors.white,
+                      RoutePath.searchScreen,
+                    ),
+                    _buildTypeCard(
+                      context,
+                      'Armored',
+                      'assets/images/armored_icon.png',
+                      Colors.white,
+                      RoutePath.searchScreen,
+                    ),
+                    _buildTypeCard(
+                      context,
+                      'XL Cab',
+                      'assets/images/xl_car_icon.png',
+                      Colors.white,
+                      RoutePath.searchScreen,
+                    ),
+                    _buildTypeCard(
+                      context,
+                      'Armored XL',
+                      'assets/images/armored_icon.png',
+                      Colors.white,
+                      RoutePath.searchScreen,
+                    ),
+                  ],
+                ),
               ),
+
+              const SizedBox(height: 24),
+
               const SizedBox(height: 12),
-              _promoBanners(),
+              SizedBox(
+                height: 140,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    _promoBanner(
+                      'Book now ',
+                      'assets/images/car.png',
+                      context,
+                      RoutePath.searchScreen,
+                    ),
+                    _promoBanner(
+                      'Book now',
+                      'assets/images/armored_car.png',
+                      context,
+                      RoutePath.searchScreen,
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -129,70 +194,69 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _suggestionCards() {
-    final items = ["Trip", "Intercity", "Reserve", "Rentals"];
-    return SizedBox(
-      height: 90,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: items.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          return Container(
-            width: 80,
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(12),
+  Widget _buildTypeCard(
+    BuildContext context,
+    String label,
+    String imageAsset,
+    Color bgColor,
+    String route,
+  ) {
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, route),
+      child: Container(
+        width: 110,
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(imageAsset, width: 50, height: 50, fit: BoxFit.contain),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
-            child: Column(
-              children: [
-                const Icon(Icons.directions_car, size: 28),
-                const SizedBox(height: 5),
-                Text(items[index], style: const TextStyle(fontSize: 13)),
-              ],
-            ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
 
-  Widget _promoBanners() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 120,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.orange.shade100,
-              // image: const DecorationImage(
-              //   image: AssetImage(
-              //     'assets/intercity.jpg',
-              //   ), // Add this image in assets
-              //   fit: BoxFit.cover,
-              // ),
+  Widget _promoBanner(
+    String title,
+    String asset,
+    BuildContext context,
+    String route,
+  ) {
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, route),
+
+      child: Container(
+        width: 260,
+        margin: const EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          image: DecorationImage(image: AssetImage(asset), fit: BoxFit.cover),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          alignment: Alignment.bottomLeft,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Container(
-            height: 120,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.blue.shade100,
-              // image: const DecorationImage(
-              //   image: AssetImage(
-              //     'assets/premier.jpg',
-              //   ), // Add this image in assets
-              //   fit: BoxFit.cover,
-              // ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

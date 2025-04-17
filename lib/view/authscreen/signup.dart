@@ -21,7 +21,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     appBarheight =
         AppBar().preferredSize.height + MediaQuery.of(context).padding.top;
     return Scaffold(
-      backgroundColor: AppColor.mainColor,
+      backgroundColor: AppColor.backgroundColor,
       body: InkWell(
         highlightColor: Colors.transparent,
         splashColor: Colors.transparent,
@@ -204,7 +204,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         Text(
                           'Already have an account? ',
                           style: Theme.of(context).textTheme.labelLarge!
-                              .copyWith(color: AppColor.whiteColor),
+                              .copyWith(color: AppColor.blackText),
                         ),
                         InkWell(
                           highlightColor: Colors.transparent,

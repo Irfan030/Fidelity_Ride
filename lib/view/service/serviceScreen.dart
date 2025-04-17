@@ -1,4 +1,4 @@
-import 'package:fidelityride/theme/colors.dart';
+import 'package:fidelityride/route/routePath.dart';
 import 'package:flutter/material.dart';
 
 class ServicesScreen extends StatelessWidget {
@@ -7,26 +7,25 @@ class ServicesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final topServices = [
-      {'title': 'Standard Cab', 'icon': Icons.local_taxi},
-      {'title': 'Armored Cab', 'icon': Icons.security},
+      {'title': 'Standard Cab', 'image': 'assets/images/car_icon.png'},
+      {'title': 'Armored Cab', 'image': 'assets/images/armored_icon.png'},
     ];
 
     final bottomServices = [
-      {'title': 'XL Cab', 'icon': Icons.airport_shuttle},
-      {'title': 'Escort', 'icon': Icons.group},
-      // {'title': 'Executive', 'icon': Icons.business_center},
-      {'title': 'Parcel', 'icon': Icons.local_shipping},
+      {'title': 'XL Cab', 'image': 'assets/images/xl_car_icon.png'},
+      {'title': 'Parcel', 'image': 'assets/images/parcel_icon.png'},
+      {'title': 'XL Armored Cab', 'image': 'assets/images/xl_car_icon.png'},
     ];
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Services",
           style: TextStyle(
-            fontSize: 28,
+            fontSize: 26,
             fontWeight: FontWeight.bold,
-            color: AppColor.secondaryColor,
+            color: Colors.black,
           ),
         ),
         backgroundColor: Colors.white,
@@ -50,34 +49,44 @@ class ServicesScreen extends StatelessWidget {
               children:
                   topServices.map((service) {
                     return Expanded(
-                      child: Container(
-                        height: 150,
-                        margin: const EdgeInsets.only(right: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: Icon(
-                                service['icon']
-                                    as IconData, // Explicitly cast to IconData
-                                size: 48,
-                                color: AppColor.secondaryColor,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, RoutePath.searchScreen);
+                        },
+                        child: Container(
+                          height: 150,
+                          margin: const EdgeInsets.only(right: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              service['title']
-                                  as String, // Explicitly cast to String
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: Image.asset(
+                                  service['image'] as String,
+                                  fit: BoxFit.contain,
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 8),
+                              Text(
+                                service['title']
+                                    as String, // Explicitly cast to String
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
@@ -99,32 +108,46 @@ class ServicesScreen extends StatelessWidget {
               ),
               itemBuilder: (context, index) {
                 final service = bottomServices[index];
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Icon(
-                          service['icon']
-                              as IconData, // Explicitly cast to IconData
-                          size: 48,
-                          color: AppColor.secondaryColor,
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      RoutePath.searchScreen,
+                    ); // 👈 navigate
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 6,
+                          offset: const Offset(0, 4),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        service['title'] as String, // Explicitly cast to String
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Image.asset(
+                            service['image'] as String,
+                            fit: BoxFit.contain,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                        const SizedBox(height: 6),
+                        Text(
+                          service['title']
+                              as String, // Explicitly cast to String
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

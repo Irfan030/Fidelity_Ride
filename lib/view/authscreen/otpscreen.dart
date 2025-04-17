@@ -136,6 +136,8 @@ class _PhoneVerificationState extends State<PhoneVerification> {
 
                   child: DefaultButton(
                     text: "VERIFY NOW",
+                    backgroundColor: AppColor.secondaryColor,
+                    borderColor: AppColor.secondaryColor,
                     press: () {
                       Navigator.pushNamedAndRemoveUntil(
                         context,

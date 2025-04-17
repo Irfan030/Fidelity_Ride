@@ -8,9 +8,10 @@ class DefaultTextInput extends StatelessWidget {
   final int? maxlineHeight;
   final Function onChange;
   final String errorMsg;
-  final bool validator;
   final String value;
   final String? prefixText;
+  final TextInputType keyboardType;
+  final bool Function(String)? validator;
 
   const DefaultTextInput({
     super.key,
@@ -20,23 +21,34 @@ class DefaultTextInput extends StatelessWidget {
 
     this.type,
     this.maxlineHeight = 1,
-    this.validator = false,
+    this.validator,
     this.errorMsg = "Invalid value",
     this.value = "",
     required this.onChange,
+    this.keyboardType = TextInputType.text,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      keyboardType: TextInputType.number,
+      keyboardType: keyboardType,
+
       textAlign: TextAlign.justify,
       maxLines: maxlineHeight,
       onChanged: (value) {
         onChange(value);
       },
       initialValue: value,
-      validator: (value) => validator ? errorMsg : null,
+      validator: (value) {
+        if (validator != null) {
+          final isValid = validator!(value ?? '');
+          if (!isValid) {
+            return errorMsg;
+          }
+        }
+        return null;
+      },
+
       decoration: InputDecoration(
         floatingLabelBehavior: FloatingLabelBehavior.always,
         filled: true,

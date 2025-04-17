@@ -1,4 +1,7 @@
+import 'package:fidelityride/route/routePath.dart';
 import 'package:fidelityride/theme/colors.dart';
+import 'package:fidelityride/theme/sizeConfig.dart';
+import 'package:fidelityride/widget/defaultButton.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -45,6 +48,35 @@ class _RideAcceptedScreenState extends State<RideAcceptedScreen> {
   void initState() {
     super.initState();
     _setupMapElements();
+
+    // Start countdown after 10 seconds
+    Future.delayed(const Duration(seconds: 15), () async {
+      if (!mounted) return;
+
+      // Show dialog/snackbar/toast (You reached)
+      await showDialog(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: const Text("You have reached"),
+              content: const Text("Thank you for riding with us."),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+      );
+
+      // Navigate to Home page and remove all previous screens
+      if (mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          RoutePath.mainScreen, // replace with your actual Home route
+          (route) => false,
+        );
+      }
+    });
   }
 
   void _setupMapElements() {
@@ -114,7 +146,8 @@ class _RideAcceptedScreenState extends State<RideAcceptedScreen> {
                 children: [
                   CircleAvatar(
                     radius: 30,
-                    backgroundImage: NetworkImage(widget.driverImageUrl),
+                    backgroundImage: AssetImage("assets/images/9.jpg"),
+                    // child: Icon(Icons.person_rounded),
                   ),
                   const SizedBox(width: 16),
                   Column(
@@ -214,6 +247,23 @@ class _RideAcceptedScreenState extends State<RideAcceptedScreen> {
     );
   }
 
+  Widget _buildPinDigit(String digit) {
+    return Container(
+      width: 30,
+      height: 30,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Center(
+        child: Text(
+          digit,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -222,7 +272,7 @@ class _RideAcceptedScreenState extends State<RideAcceptedScreen> {
         children: [
           // Map Section
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.5,
+            height: MediaQuery.of(context).size.height * 0.6,
             child: GoogleMap(
               initialCameraPosition: CameraPosition(
                 target: widget.pickupLatLng,
@@ -286,6 +336,8 @@ class _RideAcceptedScreenState extends State<RideAcceptedScreen> {
 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min, // Add this
+
                 children: [
                   // Driver is on the way text
                   Row(
@@ -349,43 +401,68 @@ class _RideAcceptedScreenState extends State<RideAcceptedScreen> {
                   const SizedBox(height: 16),
                   const Divider(height: 1, color: Colors.grey),
                   const SizedBox(height: 10),
-                  const Text(
-                    "Start your order with PIN",
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  // Driver and vehicle info
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      CircleAvatar(
-                        radius: 30,
-                        child: Icon(Icons.person_rounded),
+                      const Text(
+                        "Start your order with PIN",
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
                       ),
-                      const SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Row(
                         children: [
-                          Text(
-                            widget.driverName,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            widget.vehicleNumber,
-                            style: const TextStyle(color: Colors.grey),
-                          ),
+                          _buildPinDigit('9'),
+                          const SizedBox(width: 8),
+                          _buildPinDigit('6'),
+                          const SizedBox(width: 8),
+                          _buildPinDigit('8'),
+                          const SizedBox(width: 8),
+                          _buildPinDigit('0'),
                         ],
                       ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.message),
-                        onPressed: () {
-                          // Implement message functionality
-                        },
-                      ),
                     ],
+                  ),
+
+                  const SizedBox(height: 16),
+                  // Driver and vehicle info
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage: AssetImage("assets/images/9.jpg"),
+                          // child: Icon(Icons.person_rounded),
+                        ),
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.driverName,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              widget.vehicleNumber,
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          icon: const Icon(Icons.message),
+                          onPressed: () {
+                            // Implement message functionality
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
                   // Pickup location
@@ -394,11 +471,27 @@ class _RideAcceptedScreenState extends State<RideAcceptedScreen> {
                     style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center, // Add this
+
                     children: [
-                      Expanded(child: Text(widget.pickupLocationAddress)),
-                      TextButton(
-                        onPressed: _showTripDetailsBottomSheet,
-                        child: const Text("Trip Details"),
+                      Flexible(
+                        child: Text(
+                          widget.pickupLocationAddress,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+
+                      SizedBox(
+                        width: SizeConfig.screenWidth / 4,
+                        child: DefaultButton(
+                          text: "Trip Details",
+                          borderRadius: 25,
+                          press: _showTripDetailsBottomSheet,
+                          backgroundColor: AppColor.whiteColor,
+                          textColor: AppColor.mainColor,
+                        ),
                       ),
                     ],
                   ),

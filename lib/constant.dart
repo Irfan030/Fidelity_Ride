@@ -42,8 +42,13 @@ class AppData {
     ).hasMatch(email.trim());
   }
 
+  // static bool isValidPhoneNo(String phoneNo) {
+  //   return !RegExp(r'^\d{10}$').hasMatch(phoneNo);
+  // }
+
   static bool isValidPhoneNo(String phoneNo) {
-    return !RegExp(r'^\d{10}$').hasMatch(phoneNo);
+    // South African format: typically 9 digits without +27
+    return RegExp(r'^[1-9][0-9]{8}$').hasMatch(phoneNo.trim());
   }
 
   static isEmptyCheck(String val) {

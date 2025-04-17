@@ -1,5 +1,6 @@
 import 'package:fidelityride/route/appRoutes.dart';
 import 'package:fidelityride/route/routePath.dart';
+import 'package:fidelityride/theme/colors.dart';
 import 'package:fidelityride/theme/sizeConfig.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: AppData.appName,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.amberAccent),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColor.mainColor),
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,

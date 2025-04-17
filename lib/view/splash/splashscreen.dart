@@ -1,5 +1,6 @@
 import 'package:fidelityride/constant.dart';
 import 'package:fidelityride/route/routePath.dart';
+import 'package:fidelityride/theme/colors.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -28,14 +29,12 @@ class _SplashScreenState extends State<SplashScreen>
       curve: Curves.easeInOutBack,
     );
 
-    _controller!.forward();
-
-    _navigateToNext();
-  }
-
-  _navigateToNext() async {
-    await Future.delayed(const Duration(seconds: 2));
-    Navigator.pushReplacementNamed(context, RoutePath.auth);
+    _controller!.forward().whenComplete(() async {
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, RoutePath.auth);
+      }
+    });
   }
 
   @override
@@ -50,20 +49,32 @@ class _SplashScreenState extends State<SplashScreen>
       backgroundColor: Colors.white,
       body: Center(
         child:
-            _animation == null
-                ? Container()
-                : ScaleTransition(
-                  scale: _animation!,
-                  child: FadeTransition(
-                    opacity: _animation!,
-                    child: Image.asset(
-                      AppData.appicon,
-                      width: 220,
-                      height: 180,
-                      fit: BoxFit.contain,
+            (_animation != null)
+                ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ScaleTransition(
+                      scale: _animation!,
+                      child: FadeTransition(
+                        opacity: _animation!,
+                        child: Image.asset(
+                          AppData.appicon,
+                          width: 220,
+                          height: 180,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+                    const SizedBox(height: 30),
+                    const CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppColor.secondaryColor,
+                      ),
+                    ),
+                  ],
+                )
+                : const SizedBox.shrink(),
       ),
     );
   }
