@@ -1,10 +1,46 @@
 import 'package:fidelityride/constant.dart';
 import 'package:fidelityride/route/routePath.dart';
 import 'package:fidelityride/theme/colors.dart';
+import 'package:fidelityride/view/pickupdrop/vehicle_selection.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
+
+  // Function to get current location
+  Future<Position?> _getCurrentLocation() async {
+    try {
+      // Check if location services are enabled
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        // Location services are not enabled
+        return null;
+      }
+
+      // Check location permission
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          // Permissions are denied
+          return null;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        // Permissions are permanently denied
+        return null;
+      }
+
+      // Get the current position
+      return await Geolocator.getCurrentPosition();
+    } catch (e) {
+      print("Error getting location: $e");
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,12 +110,30 @@ class HomeScreen extends StatelessWidget {
               ),
 
               const SizedBox(height: 24),
-              // Recent locations
-              _recentLocation("Nagapattinam", "Tamil Nadu"),
+              // // Recent locations
+              // _recentLocation("Nagapattinam", "Tamil Nadu"),
+              // const SizedBox(height: 10),
+              // _recentLocation("Karaikal", "Puducherry"),
+              // const SizedBox(height: 12),
+              // Recent locations - Updated to South Africa addresses
+              _recentLocation(
+                context,
+                "Sandton City Mall",
+                "Johannesburg",
+                "OR Tambo International Airport", // Drop location
+                -26.1337, // Drop lat
+                28.2420, // Drop lng
+              ),
               const SizedBox(height: 10),
-              _recentLocation("Karaikal", "Puducherry"),
+              _recentLocation(
+                context,
+                "V&A Waterfront",
+                "Cape Town",
+                "Table Mountain", // Drop location
+                -33.9628, // Drop lat
+                18.4098, // Drop lng
+              ),
               const SizedBox(height: 12),
-
               // Quick Types
               Text(
                 'Book a Ride',
@@ -165,34 +219,115 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _recentLocation(String title, String subtitle) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.history, color: Colors.black),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
+  Widget _recentLocation(
+    BuildContext context,
+    String title,
+    String subtitle,
+    String dropLocation,
+    double dropLat,
+    double dropLng,
+  ) {
+    return GestureDetector(
+      onTap: () async {
+        // Show loading indicator
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder:
+              (context) => const Center(child: CircularProgressIndicator()),
+        );
+
+        // Get current location
+        Position? currentPosition = await _getCurrentLocation();
+
+        // Remove loading indicator
+        Navigator.of(context).pop();
+
+        if (currentPosition != null) {
+          // Navigate to RideOptionsScreen with current location as pickup
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (_) => RideOptionsScreen(
+                    pickupLocation: "Current Location",
+                    dropLocation: dropLocation,
+                    pickupLatLng: LatLng(
+                      currentPosition.latitude,
+                      currentPosition.longitude,
+                    ),
+                    dropLatLng: LatLng(dropLat, dropLng),
+                  ),
+            ),
+          );
+        } else {
+          // Handle case when location is not available
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                "Could not get current location. Please enable location services.",
               ),
-              Text(subtitle, style: const TextStyle(color: Colors.grey)),
-            ],
-          ),
-        ],
+            ),
+          );
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.history, color: Colors.black),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(subtitle, style: const TextStyle(color: Colors.grey)),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  // Widget _recentLocation(String title, String subtitle) {
+  //   return Container(
+  //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  //     decoration: BoxDecoration(
+  //       borderRadius: BorderRadius.circular(12),
+  //       border: Border.all(color: Colors.grey.shade300),
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         const Icon(Icons.history, color: Colors.black),
+  //         const SizedBox(width: 12),
+  //         Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             Text(
+  //               title,
+  //               style: const TextStyle(
+  //                 fontSize: 16,
+  //                 fontWeight: FontWeight.w500,
+  //               ),
+  //             ),
+  //             Text(subtitle, style: const TextStyle(color: Colors.grey)),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildTypeCard(
     BuildContext context,

@@ -12,9 +12,10 @@ class ServicesScreen extends StatelessWidget {
     ];
 
     final bottomServices = [
+      {'title': 'Bike', 'image': 'assets/images/bike_icon.png'},
       {'title': 'XL Cab', 'image': 'assets/images/xl_car_icon.png'},
       {'title': 'Parcel', 'image': 'assets/images/parcel_icon.png'},
-      {'title': 'XL Armored Cab', 'image': 'assets/images/xl_car_icon.png'},
+      {'title': 'XL Armored', 'image': 'assets/images/xl_car_icon.png'},
     ];
 
     return Scaffold(
