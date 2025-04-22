@@ -11,7 +11,7 @@ class DefaultTextInput extends StatelessWidget {
   final String value;
   final String? prefixText;
   final TextInputType keyboardType;
-  final bool Function(String)? validator;
+  final bool validator;
 
   const DefaultTextInput({
     super.key,
@@ -21,7 +21,7 @@ class DefaultTextInput extends StatelessWidget {
 
     this.type,
     this.maxlineHeight = 1,
-    this.validator,
+    this.validator = false,
     this.errorMsg = "Invalid value",
     this.value = "",
     required this.onChange,
@@ -39,15 +39,7 @@ class DefaultTextInput extends StatelessWidget {
         onChange(value);
       },
       initialValue: value,
-      validator: (value) {
-        if (validator != null) {
-          final isValid = validator!(value ?? '');
-          if (!isValid) {
-            return errorMsg;
-          }
-        }
-        return null;
-      },
+      validator: (value) => validator ? errorMsg : null,
 
       decoration: InputDecoration(
         floatingLabelBehavior: FloatingLabelBehavior.always,

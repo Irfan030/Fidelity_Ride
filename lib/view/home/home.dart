@@ -1,6 +1,7 @@
 import 'package:fidelityride/constant.dart';
 import 'package:fidelityride/route/routePath.dart';
 import 'package:fidelityride/theme/colors.dart';
+import 'package:fidelityride/theme/sizeConfig.dart';
 import 'package:fidelityride/view/pickupdrop/vehicle_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -47,14 +48,14 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColor.backgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColor.whiteColor,
+        backgroundColor: Colors.white,
         elevation: 2,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Image.asset(
               AppData.appicon,
-              width: 150,
+              width: SizeConfig.screenWidth / 2,
               height: 50,
               fit: BoxFit.contain,
             ),
@@ -79,10 +80,7 @@ class HomeScreen extends StatelessWidget {
               // Search Bar
               GestureDetector(
                 onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    RoutePath.searchScreen,
-                  ); // 👈 navigate
+                  Navigator.pushNamed(context, RoutePath.searchScreen);
                 },
                 child: Row(
                   children: [
@@ -110,12 +108,7 @@ class HomeScreen extends StatelessWidget {
               ),
 
               const SizedBox(height: 24),
-              // // Recent locations
-              // _recentLocation("Nagapattinam", "Tamil Nadu"),
-              // const SizedBox(height: 10),
-              // _recentLocation("Karaikal", "Puducherry"),
-              // const SizedBox(height: 12),
-              // Recent locations - Updated to South Africa addresses
+
               _recentLocation(
                 context,
                 "Sandton City Mall",
@@ -300,35 +293,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Widget _recentLocation(String title, String subtitle) {
-  //   return Container(
-  //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-  //     decoration: BoxDecoration(
-  //       borderRadius: BorderRadius.circular(12),
-  //       border: Border.all(color: Colors.grey.shade300),
-  //     ),
-  //     child: Row(
-  //       children: [
-  //         const Icon(Icons.history, color: Colors.black),
-  //         const SizedBox(width: 12),
-  //         Column(
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: [
-  //             Text(
-  //               title,
-  //               style: const TextStyle(
-  //                 fontSize: 16,
-  //                 fontWeight: FontWeight.w500,
-  //               ),
-  //             ),
-  //             Text(subtitle, style: const TextStyle(color: Colors.grey)),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Widget _buildTypeCard(
     BuildContext context,
     String label,
@@ -344,12 +308,20 @@ class HomeScreen extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: bgColor,
+          border: Border.all(color: AppColor.greyText, width: 1),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(imageAsset, width: 50, height: 50, fit: BoxFit.contain),
+            Expanded(
+              child: Image.asset(
+                imageAsset,
+                width: 50,
+                height: 50,
+                fit: BoxFit.contain,
+              ),
+            ),
             const SizedBox(height: 8),
             Text(
               label,

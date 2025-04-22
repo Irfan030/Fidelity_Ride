@@ -7,11 +7,13 @@ import 'package:fidelityride/widget/defaultButton.dart';
 import 'package:flutter/material.dart';
 
 class PhoneVerification extends StatefulWidget {
+  const PhoneVerification({super.key});
+
   @override
-  _PhoneVerificationState createState() => _PhoneVerificationState();
+  PhoneVerificationState createState() => PhoneVerificationState();
 }
 
-class _PhoneVerificationState extends State<PhoneVerification> {
+class PhoneVerificationState extends State<PhoneVerification> {
   var appBarHeight = 0.0;
   var otpController = TextEditingController();
 

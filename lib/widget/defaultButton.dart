@@ -51,10 +51,9 @@ class DefaultButton extends StatelessWidget {
                   ? const CircularProgressIndicator(color: AppColor.whiteColor)
                   : Text(
                     text,
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 12,
-                      fontFamily: "PoppinsMedium",
+                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).scaffoldBackgroundColor,
                     ),
                   ),
         ),

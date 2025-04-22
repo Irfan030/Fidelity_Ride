@@ -1,24 +1,28 @@
 import 'package:animator/animator.dart';
 import 'package:fidelityride/constant.dart';
+import 'package:fidelityride/route/routePath.dart';
 import 'package:fidelityride/theme/colors.dart';
 import 'package:fidelityride/theme/sizeConfig.dart';
-import 'package:fidelityride/view/authscreen/login.dart';
-import 'package:fidelityride/view/authscreen/otpscreen.dart';
+import 'package:fidelityride/widget/authHeader.dart';
 import 'package:fidelityride/widget/defaultButton.dart';
 import 'package:fidelityride/widget/defaultTextInput.dart';
 import 'package:flutter/material.dart';
 
 class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
+
   @override
-  _SignUpScreenState createState() => _SignUpScreenState();
+  SignUpScreenState createState() => SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
-  var appBarheight = 0.0;
+class SignUpScreenState extends State<SignUpScreen> {
+  var appBarHeight = 0.0;
+  final _formKey = GlobalKey<FormState>();
+  String email = "", phone = "";
 
   @override
   Widget build(BuildContext context) {
-    appBarheight =
+    appBarHeight =
         AppBar().preferredSize.height + MediaQuery.of(context).padding.top;
     return Scaffold(
       backgroundColor: AppColor.backgroundColor,
@@ -35,7 +39,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               Expanded(
                 child: ListView(
                   children: <Widget>[
-                    SizedBox(height: appBarheight),
+                    SizedBox(height: appBarHeight),
                     Card(
                       color: AppColor.backgroundColor,
 
@@ -73,123 +77,65 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         ),
                                       ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: 20,
-                                    left: 18,
-                                    right: 18,
-                                  ),
-                                  child: Column(
-                                    children: <Widget>[
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Text(
-                                            'Sign Up',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineMedium!
-                                                .copyWith(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: AppColor.whiteColor,
-                                                ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 10,
-                                            ),
-                                            child: Text(
-                                              ' With',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headlineSmall!
-                                                  .copyWith(
-                                                    color: AppColor.whiteColor,
-                                                  ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Text(
-                                            'email and phone',
-
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.headlineSmall!.copyWith(
-                                              color: AppColor.whiteColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Text(
-                                            'number',
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.headlineSmall!.copyWith(
-                                              color: AppColor.whiteColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                BuildHeaderText(),
                               ],
                             ),
                           ),
                           SizedBox(height: getProportionateScreenHeight(30)),
                           Padding(
                             padding: const EdgeInsets.only(right: 16, left: 16),
-                            child: Column(
-                              children: <Widget>[
-                                DefaultTextInput(
-                                  hint: "Enter Email ID",
-                                  onChange: (value) {},
-                                  label: "Email ID",
-                                  // validator: !state.isValidUsername,
-                                  errorMsg: "Invalid email address",
-                                ),
-                                SizedBox(
-                                  height: getProportionateScreenHeight(15),
-                                ),
-                                DefaultTextInput(
-                                  prefixText: "+27 ",
-                                  hint: "Enter Number",
-                                  onChange: (value) {},
-                                  label: "Mobile Number",
-                                  // validator: !state.isValidUsername,
-                                  errorMsg: "Invalid Mobile Number",
-                                ),
+                            child: Form(
+                              key: _formKey,
+                              child: Column(
+                                children: <Widget>[
+                                  DefaultTextInput(
+                                    hint: "Enter Email ID",
+                                    label: "Email ID",
+                                    onChange: (value) {
+                                      setState(() {
+                                        email = value;
+                                      });
+                                    },
+                                    validator: AppData.isInvalidEmail(email),
+                                    errorMsg: "Invalid email id ",
+                                  ),
 
-                                SizedBox(
-                                  height: getProportionateScreenHeight(35),
-                                ),
+                                  SizedBox(
+                                    height: getProportionateScreenHeight(15),
+                                  ),
+                                  DefaultTextInput(
+                                    prefixText: "+27 ",
+                                    hint: "Enter Number",
+                                    label: "Mobile Number",
+                                    onChange: (value) {
+                                      setState(() {
+                                        phone = value;
+                                      });
+                                    },
+                                    validator: AppData.isInvalidPhoneNo(phone),
+                                    errorMsg: "Invalid Mobile Number",
+                                  ),
 
-                                DefaultButton(
-                                  text: 'SIGN UP',
-                                  backgroundColor: AppColor.mainColor,
-                                  borderColor: AppColor.mainColor,
+                                  SizedBox(
+                                    height: getProportionateScreenHeight(35),
+                                  ),
 
-                                  press: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => PhoneVerification(),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
+                                  DefaultButton(
+                                    text: 'SIGN UP',
+                                    backgroundColor: AppColor.mainColor,
+                                    borderColor: AppColor.mainColor,
+
+                                    press: () {
+                                      if (_formKey.currentState!.validate()) {
+                                        Navigator.pushNamed(
+                                          context,
+                                          RoutePath.otpVerification,
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           SizedBox(height: 20),
@@ -210,12 +156,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           highlightColor: Colors.transparent,
                           splashColor: Colors.transparent,
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => LoginScreen(),
-                              ),
-                            );
+                            Navigator.pushNamed(context, RoutePath.login);
                           },
                           child: Text(
                             ' Sign In',

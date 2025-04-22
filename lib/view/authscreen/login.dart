@@ -1,7 +1,8 @@
 import 'package:animator/animator.dart';
 import 'package:fidelityride/constant.dart';
+import 'package:fidelityride/route/routePath.dart';
 import 'package:fidelityride/theme/colors.dart';
-import 'package:fidelityride/view/authscreen/otpscreen.dart';
+import 'package:fidelityride/widget/defaultButton.dart';
 import 'package:fidelityride/widget/defaultTextInput.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +12,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  String phone = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,27 +68,46 @@ class _LoginScreenState extends State<LoginScreen> {
                             left: 18,
                             right: 18,
                           ),
-                          child: Column(
-                            children: <Widget>[
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(
-                                    'Login',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.headlineMedium!.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          Theme.of(
-                                            context,
-                                          ).textTheme.titleLarge!.color,
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              children: <Widget>[
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      'Login',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.headlineMedium!.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).textTheme.titleLarge!.color,
+                                      ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 10),
-                                    child: Text(
-                                      ' With Your',
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 10),
+                                      child: Text(
+                                        ' With Your',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.headlineSmall!.copyWith(
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).textTheme.titleLarge!.color,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      'phone number',
                                       style: Theme.of(
                                         context,
                                       ).textTheme.headlineSmall!.copyWith(
@@ -94,71 +117,42 @@ class _LoginScreenState extends State<LoginScreen> {
                                             ).textTheme.titleLarge!.color,
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(
-                                    'phone number',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.headlineSmall!.copyWith(
-                                      color:
-                                          Theme.of(
-                                            context,
-                                          ).textTheme.titleLarge!.color,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 20),
-                              DefaultTextInput(
-                                prefixText: "+27 ",
-                                hint: "Enter Number",
-                                onChange: (value) {},
-                                label: "Mobile Number",
-                                // validator: !state.isValidUsername,
-                                errorMsg: "Invalid Mobile Number",
-                              ),
-
-                              SizedBox(height: 20),
-                              InkWell(
-                                highlightColor: Colors.transparent,
-                                splashColor: Colors.transparent,
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => PhoneVerification(),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: AppColor.mainColor,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'NEXT',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.labelLarge!.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color:
-                                            Theme.of(
-                                              context,
-                                            ).scaffoldBackgroundColor,
-                                      ),
-                                    ),
-                                  ),
+                                  ],
                                 ),
-                              ),
-                              SizedBox(height: 20),
-                            ],
+                                SizedBox(height: 20),
+                                DefaultTextInput(
+                                  prefixText: "+27 ",
+                                  hint: "Enter Number",
+                                  keyboardType: TextInputType.number,
+                                  label: "Mobile Number",
+                                  onChange: (value) {
+                                    setState(() {
+                                      phone = value;
+                                    });
+                                  },
+                                  validator: AppData.isInvalidPhoneNo(phone),
+                                  errorMsg: "Invalid Mobile Number",
+                                ),
+
+                                SizedBox(height: 20),
+                                DefaultButton(
+                                  text: 'NEXT',
+                                  backgroundColor: AppColor.mainColor,
+                                  borderColor: AppColor.mainColor,
+
+                                  press: () {
+                                    if (_formKey.currentState!.validate()) {
+                                      Navigator.pushNamed(
+                                        context,
+                                        RoutePath.otpVerification,
+                                      );
+                                    }
+                                  },
+                                ),
+
+                                SizedBox(height: 20),
+                              ],
+                            ),
                           ),
                         ),
                       ),

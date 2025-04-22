@@ -1,4 +1,4 @@
-import 'package:fidelityride/route/appRoutes.dart';
+import 'package:fidelityride/route/app_routes.dart';
 import 'package:fidelityride/route/routePath.dart';
 import 'package:fidelityride/theme/colors.dart';
 import 'package:fidelityride/theme/sizeConfig.dart';
