@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
           children: <Widget>[
             Container(
               height: 220,
-              color: AppColor.secondaryColor,
+              color: AppColor.mainColor,
               child: Animator<Offset>(
                 tween: Tween<Offset>(begin: Offset(0, 0.4), end: Offset(0, 0)),
                 duration: Duration(seconds: 1),
@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(15),
                           color: AppColor.backgroundColor,
                           border: Border.all(
-                            color: AppColor.secondaryColor,
+                            color: AppColor.mainColor,
                             width: 1.5,
                           ),
                         ),
@@ -122,94 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 // validator: !state.isValidUsername,
                                 errorMsg: "Invalid Mobile Number",
                               ),
-                              // Container(
-                              //   height: 50,
-                              //   decoration: BoxDecoration(
-                              //     borderRadius: BorderRadius.all(
-                              //       Radius.circular(10),
-                              //     ),
-                              //     border: Border.all(
-                              //       color: Theme.of(context).dividerColor,
-                              //     ),
-                              //     color: Theme.of(context).colorScheme.surface,
-                              //   ),
-                              //   child: Row(
-                              //     children: <Widget>[
-                              //       SizedBox(
-                              //         width: 86,
-                              //         child: SizedBox(
-                              //           width: 80,
-                              //           height: 60,
-                              //           child: Center(
-                              //             child: CountryPickerDropdown(
-                              //               initialValue:
-                              //                   'ZA', // ISO code for South Africa
-                              //               onTap:
-                              //                   () => FocusScope.of(
-                              //                     context,
-                              //                   ).requestFocus(FocusNode()),
-                              //               onValuePicked: (Country country) {},
-                              //               itemBuilder: (Country country) {
-                              //                 return Padding(
-                              //                   padding:
-                              //                       const EdgeInsets.symmetric(
-                              //                         horizontal: 8.0,
-                              //                       ),
-                              //                   child: Row(
-                              //                     children: <Widget>[
-                              //                       SizedBox(
-                              //                         height: 25,
-                              //                         width: 25,
-                              //                         child:
-                              //                             CountryPickerUtils.getDefaultFlagImage(
-                              //                               country,
-                              //                             ),
-                              //                       ),
-                              //                       const SizedBox(width: 8.0),
-                              //                       Text(
-                              //                         '+${country.phoneCode}',
-                              //                       ),
-                              //                     ],
-                              //                   ),
-                              //                 );
-                              //               },
-                              //               itemHeight: null,
-                              //               isExpanded: true,
-                              //               icon: SizedBox(),
-                              //             ),
-                              //           ),
-                              //         ),
-                              //       ),
-                              //       Expanded(
-                              //         child: TextFormField(
-                              //           style: Theme.of(
-                              //             context,
-                              //           ).textTheme.bodyMedium!.copyWith(
-                              //             color:
-                              //                 Theme.of(
-                              //                   context,
-                              //                 ).textTheme.titleLarge!.color,
-                              //           ),
-                              //           keyboardType: TextInputType.number,
-                              //           decoration: InputDecoration(
-                              //             contentPadding: EdgeInsets.only(
-                              //               bottom: 8,
-                              //             ),
-                              //             hintText: 'Mobile Number',
-                              //
-                              //             hintStyle: Theme.of(
-                              //               context,
-                              //             ).textTheme.bodyMedium!.copyWith(
-                              //               color:
-                              //                   Theme.of(context).dividerColor,
-                              //             ),
-                              //             border: InputBorder.none,
-                              //           ),
-                              //         ),
-                              //       ),
-                              //     ],
-                              //   ),
-                              // ),
+
                               SizedBox(height: 20),
                               InkWell(
                                 highlightColor: Colors.transparent,
@@ -226,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   height: 40,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
-                                    color: AppColor.secondaryColor,
+                                    color: AppColor.mainColor,
                                   ),
                                   child: Center(
                                     child: Text(

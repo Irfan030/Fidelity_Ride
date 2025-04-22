@@ -1,9 +1,11 @@
 import 'dart:math';
 
+import 'package:fidelityride/constant.dart';
 import 'package:fidelityride/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../mapservices/direction_service.dart';
 import '../../theme/sizeConfig.dart';
 import 'confirm_pickup.dart';
 
@@ -73,37 +75,183 @@ class _RideOptionsScreenState extends State<RideOptionsScreen> {
     ),
   ];
 
+  // Add these new properties
+  bool _isLoadingRoute = true;
+  bool _routeError = false;
+  late final DirectionsRepository _directionsRepository;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
-    _setupMap();
+    _directionsRepository = DirectionsRepository(apiKey: AppData.apiKey);
+    _initializeMap();
   }
 
-  void _setupMap() {
-    // Add markers
-    _markers.add(
+  @override
+  void dispose() {
+    _directionsRepository.dispose();
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initializeMap() async {
+    try {
+      // Add markers first for immediate visibility
+      _addMarkers();
+
+      // Load route asynchronously
+      await _loadRoute();
+    } catch (e) {
+      setState(() {
+        _routeError = true;
+        _isLoadingRoute = false;
+      });
+    }
+  }
+
+  void _addMarkers() {
+    _markers.addAll([
       Marker(
         markerId: const MarkerId('pickup'),
         position: widget.pickupLatLng,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
       ),
-    );
-    _markers.add(
       Marker(
         markerId: const MarkerId('drop'),
         position: widget.dropLatLng,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
       ),
-    );
+    ]);
+    setState(() {});
+  }
 
-    // Add polyline
-    _polyLines.add(
-      Polyline(
-        polylineId: const PolylineId('route'),
-        points: [widget.pickupLatLng, widget.dropLatLng],
-        color: Colors.black,
-        width: 4,
-      ),
+  Future<void> _loadRoute() async {
+    try {
+      final points = await _directionsRepository.getDirections(
+        origin: widget.pickupLatLng,
+        destination: widget.dropLatLng,
+      );
+
+      // Simplify the polyline for long routes to improve performance
+      final optimizedPoints =
+          points.length > 100
+              ? _simplifyPolyline(points, tolerance: 0.0001)
+              : points;
+
+      _polyLines.add(
+        Polyline(
+          polylineId: const PolylineId('route'),
+          points: optimizedPoints,
+          width: 4,
+          geodesic: true,
+        ),
+      );
+
+      // Zoom to fit the route
+      _zoomToRoute(optimizedPoints);
+    } catch (e) {
+      _polyLines.add(
+        Polyline(
+          polylineId: const PolylineId('route'),
+          points: [widget.pickupLatLng, widget.dropLatLng],
+          color: Colors.black,
+          width: 4,
+        ),
+      );
+      rethrow;
+    } finally {
+      setState(() => _isLoadingRoute = false);
+    }
+  }
+
+  void _zoomToRoute(List<LatLng> points) {
+    final bounds = _boundsFromLatLngList(points);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 100));
+    });
+  }
+
+  LatLngBounds _boundsFromLatLngList(List<LatLng> list) {
+    double? x0, x1, y0, y1;
+    for (final latLng in list) {
+      if (x0 == null) {
+        x0 = x1 = latLng.latitude;
+        y0 = y1 = latLng.longitude;
+      } else {
+        x0 = min(x0, latLng.latitude);
+        x1 = max(x1!, latLng.latitude);
+        y0 = min(y0!, latLng.longitude);
+        y1 = max(y1!, latLng.longitude);
+      }
+    }
+    return LatLngBounds(
+      northeast: LatLng(x1!, y1!),
+      southwest: LatLng(x0!, y0!),
+    );
+  }
+
+  List<LatLng> _simplifyPolyline(
+    List<LatLng> points, {
+    double tolerance = 0.0001,
+  }) {
+    if (points.length <= 2) return points;
+
+    final simplified = [points.first];
+    for (int i = 1; i < points.length - 1; i++) {
+      final distance = _pointToLineDistance(
+        points[i],
+        simplified.last,
+        points.last,
+      );
+      if (distance > tolerance) {
+        simplified.add(points[i]);
+      }
+    }
+    simplified.add(points.last);
+    return simplified;
+  }
+
+  double _pointToLineDistance(LatLng point, LatLng start, LatLng end) {
+    if (start == end) {
+      return sqrt(
+        pow(point.latitude - start.latitude, 2) +
+            pow(point.longitude - start.longitude, 2),
+      );
+    }
+
+    final d =
+        pow(end.latitude - start.latitude, 2) +
+        pow(end.longitude - start.longitude, 2);
+    final t =
+        ((point.latitude - start.latitude) * (end.latitude - start.latitude) +
+            (point.longitude - start.longitude) *
+                (end.longitude - start.longitude)) /
+        d;
+
+    if (t < 0) {
+      return sqrt(
+        pow(point.latitude - start.latitude, 2) +
+            pow(point.longitude - start.longitude, 2),
+      );
+    } else if (t > 1) {
+      return sqrt(
+        pow(point.latitude - end.latitude, 2) +
+            pow(point.longitude - end.longitude, 2),
+      );
+    }
+
+    return sqrt(
+      pow(
+            point.latitude -
+                (start.latitude + t * (end.latitude - start.latitude)),
+            2,
+          ) +
+          pow(
+            point.longitude -
+                (start.longitude + t * (end.longitude - start.longitude)),
+            2,
+          ),
     );
   }
 
@@ -156,10 +304,6 @@ class _RideOptionsScreenState extends State<RideOptionsScreen> {
     Function(void Function()) setModalState,
   ) {
     return ListTile(
-      leading: Icon(
-        method == "Cash" ? Icons.money : Icons.account_balance_wallet,
-        color: AppColor.secondaryColor,
-      ),
       title: Text(method),
       trailing: Radio<String>(
         value: method,
@@ -177,16 +321,175 @@ class _RideOptionsScreenState extends State<RideOptionsScreen> {
     );
   }
 
-  Widget _buildRideOption(BuildContext context, RideOption option, int index) {
-    final isSelected = _selectedOptionIndex == index;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+
+      backgroundColor: AppColor.backgroundColor,
+      body: Column(
+        children: [
+          // Map View with loading indicator
+          SizedBox(
+            height: SizeConfig.screenHeight * 0.5,
+            child: Stack(
+              children: [
+                GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: widget.pickupLatLng,
+                    zoom: 14,
+                  ),
+                  onMapCreated: (controller) {
+                    _mapController = controller;
+                    if (!_isLoadingRoute && !_routeError) {
+                      _zoomToRoute(_polyLines.first.points);
+                    }
+                  },
+                  markers: _markers,
+                  polylines: _polyLines,
+                  myLocationEnabled: true,
+                  zoomControlsEnabled: false,
+                  myLocationButtonEnabled: false,
+                ),
+                if (_isLoadingRoute)
+                  const Center(child: CircularProgressIndicator()),
+                if (_routeError)
+                  Positioned(
+                    bottom: 10,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      color: Colors.red.withOpacity(0.7),
+                      child: const Text(
+                        'Failed to load route details',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+
+          // Ride options list with memoization
+          Expanded(
+            child: _RideOptionsList(
+              options: _rideOptions,
+              selectedIndex: _selectedOptionIndex,
+              onSelected:
+                  (index) => setState(() => _selectedOptionIndex = index),
+            ),
+          ),
+
+          // Payment and booking section
+          _BottomBookingSection(
+            paymentMethod: _selectedPaymentMethod,
+            onPaymentPressed: () => _showPaymentBottomSheet(context),
+            bookingEnabled: _selectedOptionIndex != null,
+            bookingText:
+                _selectedOptionIndex != null
+                    ? 'Book ${_rideOptions[_selectedOptionIndex!].type}'
+                    : 'Select a ride',
+            onBookingPressed:
+                _selectedOptionIndex != null
+                    ? () => _navigateToConfirmation()
+                    : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToConfirmation() {
+    final selectedOption = _rideOptions[_selectedOptionIndex!];
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => ConfirmPickupScreen(
+              initialAddress: widget.pickupLocation,
+              initialLatitude: widget.pickupLatLng.latitude,
+              initialLongitude: widget.pickupLatLng.longitude,
+              dropAddress: widget.dropLocation,
+              dropLatitude: widget.dropLatLng.latitude,
+              dropLongitude: widget.dropLatLng.longitude,
+              selectedRideType: selectedOption.type,
+            ),
+      ),
+    );
+  }
+}
+
+class RideOption {
+  final String type;
+  final IconData icon;
+  final String description;
+  final String time;
+  final String dropTime;
+  final String price;
+  final bool isFastest;
+  final int maxPassengers;
+
+  RideOption({
+    required this.type,
+    required this.icon,
+    required this.description,
+    required this.time,
+    required this.dropTime,
+    required this.price,
+    this.isFastest = false,
+    required this.maxPassengers,
+  });
+}
+
+class _RideOptionsList extends StatelessWidget {
+  final List<RideOption> options;
+  final int? selectedIndex;
+  final ValueChanged<int> onSelected;
+
+  const _RideOptionsList({
+    required this.options,
+    required this.selectedIndex,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: AppColor.whiteColor,
+      child: ListView.builder(
+        padding: EdgeInsets.zero,
+        itemCount: options.length,
+        itemBuilder: (context, index) {
+          return _RideOptionItem(
+            option: options[index],
+            isSelected: selectedIndex == index,
+            onTap: () => onSelected(index),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _RideOptionItem extends StatelessWidget {
+  final RideOption option;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _RideOptionItem({
+    required this.option,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedOptionIndex = index;
-        });
-      },
+      onTap: onTap,
       child: Card(
-        color: AppColor.whiteColor,
+        color: Colors.grey[100],
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -284,165 +587,57 @@ class _RideOptionsScreenState extends State<RideOptionsScreen> {
       ),
     );
   }
+}
+
+class _BottomBookingSection extends StatelessWidget {
+  final String paymentMethod;
+  final VoidCallback onPaymentPressed;
+  final bool bookingEnabled;
+  final String bookingText;
+  final VoidCallback? onBookingPressed;
+
+  const _BottomBookingSection({
+    required this.paymentMethod,
+    required this.onPaymentPressed,
+    required this.bookingEnabled,
+    required this.bookingText,
+    this.onBookingPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.backgroundColor,
-      body: Column(
-        children: [
-          // Map View
-          SizedBox(
-            height: SizeConfig.screenHeight * 0.5,
-            child: GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: widget.pickupLatLng,
-                zoom: 14,
-              ),
-              onMapCreated: (controller) {
-                _mapController = controller;
-                // Zoom to fit both markers
-                _mapController.animateCamera(
-                  CameraUpdate.newLatLngBounds(
-                    LatLngBounds(
-                      southwest: LatLng(
-                        min(
-                          widget.pickupLatLng.latitude,
-                          widget.dropLatLng.latitude,
-                        ),
-                        min(
-                          widget.pickupLatLng.longitude,
-                          widget.dropLatLng.longitude,
-                        ),
-                      ),
-                      northeast: LatLng(
-                        max(
-                          widget.pickupLatLng.latitude,
-                          widget.dropLatLng.latitude,
-                        ),
-                        max(
-                          widget.pickupLatLng.longitude,
-                          widget.dropLatLng.longitude,
-                        ),
-                      ),
-                    ),
-                    100, // padding
-                  ),
-                );
-              },
-              markers: _markers,
-              polylines: _polyLines,
-              myLocationEnabled: true,
-              zoomControlsEnabled: false,
+    return Column(
+      children: [
+        const SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: InkWell(
+            onTap: onPaymentPressed,
+            child: Row(
+              children: [
+                Text(paymentMethod, style: const TextStyle(fontSize: 18)),
+                const Spacer(),
+                const Icon(Icons.arrow_forward_ios, size: 16),
+              ],
             ),
           ),
-
-          Expanded(
-            child: Container(
-              color: AppColor.whiteColor,
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                physics: const AlwaysScrollableScrollPhysics(),
-                itemCount: _rideOptions.length,
-                itemBuilder: (context, index) {
-                  final option = _rideOptions[index];
-                  return _buildRideOption(context, option, index);
-                },
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+          child: ElevatedButton(
+            onPressed: onBookingPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColor.mainColor,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
               ),
+              minimumSize: const Size(double.infinity, 50),
             ),
+            child: Text(bookingText, style: const TextStyle(fontSize: 16)),
           ),
-
-          // Bottom button
-          SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: InkWell(
-              onTap: () => _showPaymentBottomSheet(context),
-              child: Row(
-                children: [
-                  Icon(Icons.money, color: AppColor.secondaryColor),
-                  const SizedBox(width: 8),
-                  Text(
-                    _selectedPaymentMethod,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  const Spacer(),
-                  const Icon(Icons.arrow_forward_ios, size: 16),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
-            child: ElevatedButton(
-              onPressed:
-                  _selectedOptionIndex != null
-                      ? () {
-                        final selectedOption =
-                            _rideOptions[_selectedOptionIndex!];
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => ConfirmPickupScreen(
-                                  initialAddress:
-                                      widget.pickupLocation, // just the string
-                                  initialLatitude: widget.pickupLatLng.latitude,
-                                  initialLongitude:
-                                      widget.pickupLatLng.longitude,
-
-                                  dropAddress: widget.dropLocation, // ✅ added
-                                  dropLatitude:
-                                      widget.dropLatLng.latitude, // ✅ added
-                                  dropLongitude: widget.dropLatLng.longitude,
-                                  selectedRideType: selectedOption.type,
-                                ),
-                          ),
-                        );
-                      }
-                      : null,
-
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColor.mainColor,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                minimumSize: const Size(double.infinity, 50),
-              ),
-              child: Text(
-                _selectedOptionIndex != null
-                    ? 'Book ${_rideOptions[_selectedOptionIndex!].type}'
-                    : 'Select a ride',
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
-}
-
-class RideOption {
-  final String type;
-  final IconData icon;
-  final String description;
-  final String time;
-  final String dropTime;
-  final String price;
-  final bool isFastest;
-  final int maxPassengers;
-
-  RideOption({
-    required this.type,
-    required this.icon,
-    required this.description,
-    required this.time,
-    required this.dropTime,
-    required this.price,
-    this.isFastest = false,
-    required this.maxPassengers,
-  });
 }

@@ -47,7 +47,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           Container(
                             height: 200,
                             decoration: BoxDecoration(
-                              color: AppColor.secondaryColor,
+                              color: AppColor.mainColor,
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(15),
                                 topRight: Radius.circular(15),
@@ -176,8 +176,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                                 DefaultButton(
                                   text: 'SIGN UP',
-                                  backgroundColor: AppColor.secondaryColor,
-                                  borderColor: AppColor.secondaryColor,
+                                  backgroundColor: AppColor.mainColor,
+                                  borderColor: AppColor.mainColor,
 
                                   press: () {
                                     Navigator.push(

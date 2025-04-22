@@ -1,21 +1,24 @@
 import 'dart:async';
 
+import 'package:fidelityride/constant.dart';
 import 'package:fidelityride/theme/colors.dart';
 import 'package:fidelityride/view/pickupdrop/ride_accepted_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lottie/lottie.dart' show Lottie;
 
+import '../../mapservices/direction_service.dart';
+
 class SearchingDriverScreen extends StatefulWidget {
   final LatLng pickupLatLng;
   final LatLng dropLatLng;
-  final String rideType; // ✅ Add this
+  final String rideType;
 
   final String pickupLocationTitle;
   final String pickupLocationAddress;
   final String dropLocationTitle;
   final String dropLocationAddress;
-  final double estimatedFare; // Optional, if not already there
+  final double estimatedFare;
 
   const SearchingDriverScreen({
     super.key,
@@ -36,51 +39,70 @@ class SearchingDriverScreen extends StatefulWidget {
 class _SearchingDriverScreenState extends State<SearchingDriverScreen>
     with TickerProviderStateMixin {
   bool _rideAccepted = false;
-  late Timer _searchingTimer;
-  late GoogleMapController _mapController;
+  Timer? _searchingTimer;
+  GoogleMapController? _mapController;
   final Set<Polyline> _polyLines = {};
   final Set<Marker> _markers = {};
-  int _progressStep = 0;
-  late AnimationController _progressController;
 
   @override
   void initState() {
     super.initState();
     _setupMapElements();
+    _fetchPolyline(); // Now fetch actual route
 
-    // Simulate finding a driver after 5 seconds
-    _searchingTimer = Timer(const Duration(seconds: 5), () {
+    _searchingTimer = Timer(const Duration(seconds: 20), () {
       if (!mounted) return;
       setState(() => _rideAccepted = true);
 
-      // Show acceptance message for 2 seconds then navigate
       Future.delayed(const Duration(seconds: 2), () {
         if (!mounted) return;
         _navigateToRideAccepted();
       });
     });
-
-    // _progressController = AnimationController(
-    //   vsync: this,
-    //   duration: const Duration(seconds: 4),
-    // )..repeat();
-    //
-    // // Cycle progress step every second
-    // Future.doWhile(() async {
-    //   await Future.delayed(const Duration(seconds: 1));
-    //   if (!mounted) return false;
-    //   setState(() {
-    //     _progressStep = (_progressStep + 1) % 4;
-    //   });
-    //   return true;
-    // });
   }
 
   @override
   void dispose() {
-    _searchingTimer.cancel();
-    _progressController.dispose();
+    _searchingTimer?.cancel();
     super.dispose();
+  }
+
+  Future<void> _fetchPolyline() async {
+    final directions = DirectionsRepository(apiKey: AppData.apiKey);
+    try {
+      final routePoints = await directions.getDirections(
+        origin: widget.pickupLatLng,
+        destination: widget.dropLatLng,
+      );
+      setState(() {
+        _polyLines.clear();
+        _polyLines.add(
+          Polyline(
+            polylineId: const PolylineId('route'),
+            points: routePoints,
+            color: Colors.black,
+            width: 4,
+          ),
+        );
+      });
+    } catch (e) {
+      debugPrint("Failed to load route: $e");
+    }
+  }
+
+  void _setupMapElements() {
+    _markers.addAll([
+      Marker(
+        markerId: const MarkerId('pickup'),
+        position: widget.pickupLatLng,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      ),
+      Marker(
+        markerId: const MarkerId('drop'),
+        position: widget.dropLatLng,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+      ),
+    ]);
   }
 
   void _navigateToRideAccepted() {
@@ -97,39 +119,12 @@ class _SearchingDriverScreenState extends State<SearchingDriverScreen>
               dropLocationTitle: widget.dropLocationTitle,
               dropLocationAddress: widget.dropLocationAddress,
               estimatedFare: widget.estimatedFare,
-              driverName: "William ", // Replace with actual driver data
-              vehicleNumber: "TN09DD6811", // Replace with actual vehicle data
-              driverImageUrl:
-                  "https://example.com/driver.jpg", // Replace with actual image
-              distanceToPickup: 1.1, // Replace with actual distance
+              driverName: "William ",
+              vehicleNumber: "TN09DD6811",
+              driverImageUrl: "https://example.com/driver.jpg",
+              distanceToPickup: 1.1,
+              googleApiKey: AppData.apiKey,
             ),
-      ),
-    );
-  }
-
-  void _setupMapElements() {
-    _markers.add(
-      Marker(
-        markerId: const MarkerId('pickup'),
-        position: widget.pickupLatLng,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-      ),
-    );
-
-    _markers.add(
-      Marker(
-        markerId: const MarkerId('drop'),
-        position: widget.dropLatLng,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-      ),
-    );
-
-    _polyLines.add(
-      Polyline(
-        polylineId: const PolylineId('route'),
-        points: [widget.pickupLatLng, widget.dropLatLng],
-        color: Colors.black,
-        width: 4,
       ),
     );
   }
@@ -272,9 +267,10 @@ class _SearchingDriverScreenState extends State<SearchingDriverScreen>
                 target: widget.pickupLatLng,
                 zoom: 14,
               ),
+
               onMapCreated: (controller) {
                 _mapController = controller;
-                _mapController.animateCamera(
+                _mapController!.animateCamera(
                   CameraUpdate.newLatLngBounds(
                     LatLngBounds(
                       southwest: LatLng(
@@ -302,8 +298,10 @@ class _SearchingDriverScreenState extends State<SearchingDriverScreen>
                   ),
                 );
               },
+
               markers: _markers,
               polylines: _polyLines,
+
               zoomControlsEnabled: false,
               myLocationEnabled: true,
             ),

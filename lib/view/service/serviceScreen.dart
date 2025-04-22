@@ -134,7 +134,7 @@ class ServicesScreen extends StatelessWidget {
                         Expanded(
                           child: Image.asset(
                             service['image'] as String,
-                            fit: BoxFit.contain,
+                            fit: BoxFit.cover,
                           ),
                         ),
                         const SizedBox(height: 6),

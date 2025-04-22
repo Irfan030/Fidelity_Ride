@@ -1,37 +1,53 @@
-// directions_service.dart
 import 'dart:convert';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
-class DirectionsService {
+class DirectionsRepository {
   static const String _baseUrl =
       'https://maps.googleapis.com/maps/api/directions/json?';
+  static const int _timeoutSeconds = 15;
 
   final String apiKey;
+  final http.Client _client;
 
-  DirectionsService(this.apiKey);
+  DirectionsRepository({required this.apiKey}) : _client = http.Client();
 
-  Future<Map<String, dynamic>> getDirections({
+  Future<List<LatLng>> getDirections({
     required LatLng origin,
     required LatLng destination,
   }) async {
-    final response = await http.get(
-      Uri.parse(
-        '${_baseUrl}origin=${origin.latitude},${origin.longitude}'
+    try {
+      final uri = Uri.parse(
+        '$_baseUrl'
+        'origin=${origin.latitude},${origin.longitude}'
         '&destination=${destination.latitude},${destination.longitude}'
+        '&mode=driving'
+        '&alternatives=false'
         '&key=$apiKey',
-      ),
-    );
+      );
 
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
+      final response = await _client
+          .get(uri)
+          .timeout(const Duration(seconds: _timeoutSeconds));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'OK') {
+          return _decodePolyline(
+            data['routes'][0]['overview_polyline']['points'],
+          );
+        }
+        throw Exception('Directions API error: ${data['status']}');
+      }
+      throw Exception('HTTP error: ${response.statusCode}');
+    } catch (e) {
+      throw Exception('Failed to load directions: $e');
     }
-    throw Exception('Failed to load directions');
   }
 
-  static List<LatLng> decodePolyline(String encoded) {
-    List<LatLng> points = [];
+  List<LatLng> _decodePolyline(String encoded) {
+    final List<LatLng> points = [];
     int index = 0, len = encoded.length;
     int lat = 0, lng = 0;
 
@@ -58,5 +74,9 @@ class DirectionsService {
       points.add(LatLng(lat / 1E5, lng / 1E5));
     }
     return points;
+  }
+
+  void dispose() {
+    _client.close();
   }
 }

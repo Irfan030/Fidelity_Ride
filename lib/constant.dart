@@ -5,6 +5,7 @@ class AppData {
   static String session = " ";
   static String userId = " ";
   static String role = " ";
+  static String apiKey = "AIzaSyDEQuMizKGG3iBx96RZWckPjQso8lFQ6V4";
 
   static String domainName = " ";
   static String platform = " ";
