@@ -1,4 +1,8 @@
+import 'package:fidelityride/constant.dart';
 import 'package:fidelityride/route/routePath.dart';
+import 'package:fidelityride/theme/colors.dart';
+import 'package:fidelityride/theme/sizeConfig.dart';
+import 'package:fidelityride/widget/titleWidget.dart';
 import 'package:flutter/material.dart';
 
 class ServicesScreen extends StatelessWidget {
@@ -13,8 +17,7 @@ class ServicesScreen extends StatelessWidget {
 
     final bottomServices = [
       {'title': 'Bike', 'image': 'assets/images/bike_icon.png'},
-      {'title': 'XL Cab', 'image': 'assets/images/xl_car_icon.png'},
-      {'title': 'Parcel', 'image': 'assets/images/parcel_icon.png'},
+      {'title': 'XL Cab', 'image': 'assets/images/car_icon.png'},
       {'title': 'XL Armored', 'image': 'assets/images/xl_car_icon.png'},
     ];
 
@@ -38,11 +41,15 @@ class ServicesScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Anywhere. Anything. Anytime. With Secure Drive.",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            TitleWidget(
+              val: "Anywhere. Anything. Anytime. With Secure Drive.",
+
+              fontSize: 16,
+              letterSpacing: 0,
+              fontFamily: AppData.poppinsMedium,
+              color: AppColor.blackText,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: getProportionateScreenHeight(16)),
 
             // First Row (2 Cards)
             Row(
@@ -55,8 +62,9 @@ class ServicesScreen extends StatelessWidget {
                           Navigator.pushNamed(context, RoutePath.searchScreen);
                         },
                         child: Container(
-                          height: 150,
-                          margin: const EdgeInsets.only(right: 12),
+                          height: getProportionateScreenHeight(150),
+                          width: SizeConfig.screenWidth / 2,
+                          margin: const EdgeInsets.only(right: 15),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
@@ -77,7 +85,7 @@ class ServicesScreen extends StatelessWidget {
                                   fit: BoxFit.contain,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: getProportionateScreenHeight(8)),
                               Text(
                                 service['title']
                                     as String, // Explicitly cast to String
@@ -94,7 +102,7 @@ class ServicesScreen extends StatelessWidget {
                   }).toList(),
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: getProportionateScreenHeight(16)),
 
             // Second Row (4 Cards)
             GridView.builder(
@@ -111,10 +119,7 @@ class ServicesScreen extends StatelessWidget {
                 final service = bottomServices[index];
                 return GestureDetector(
                   onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      RoutePath.searchScreen,
-                    ); // 👈 navigate
+                    Navigator.pushNamed(context, RoutePath.searchScreen);
                   },
                   child: Container(
                     decoration: BoxDecoration(

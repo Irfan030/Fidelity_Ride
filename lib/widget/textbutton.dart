@@ -14,7 +14,7 @@ class TextButtonWidget extends StatelessWidget {
     super.key,
     required this.text,
     required this.onPressed,
-    this.textColor = AppColor.textButtonColor,
+    this.textColor = AppColor.blackText,
     this.fontSize = 14,
     this.fontFamily = "PoppinsRegular",
 

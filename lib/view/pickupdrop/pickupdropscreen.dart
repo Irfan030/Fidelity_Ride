@@ -315,11 +315,13 @@ class _PickupDropScreenState extends State<PickupDropScreen> {
         width: SizeConfig.screenWidth / 2,
         child: DefaultButton(
           text: "Book Ride",
-          press: () {
+          press: () async {
             if (pickupController.text.isNotEmpty &&
                 dropController.text.isNotEmpty &&
                 pickupLatLng != null &&
                 dropLatLng != null) {
+              // Save the drop location to recent searches
+              await saveRecentSearch(dropController.text, false);
               Navigator.push(
                 context,
                 MaterialPageRoute(

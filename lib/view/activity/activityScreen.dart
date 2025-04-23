@@ -1,4 +1,5 @@
 import 'package:fidelityride/theme/colors.dart';
+import 'package:fidelityride/theme/sizeConfig.dart';
 import 'package:fidelityride/view/pickupdrop/vehicle_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -10,7 +11,7 @@ class ActivityScreen extends StatelessWidget {
     {
       "title": "Sandton to OR Tambo",
       "date": "18 Apr · 10:15",
-      "amount": "R180.00",
+      "amount": "R 180.00",
       "icon": Icons.directions_car,
       "pickup": "Sandton City Mall, Johannesburg",
       "drop": "OR Tambo International Airport, Kempton Park",
@@ -22,7 +23,7 @@ class ActivityScreen extends StatelessWidget {
     {
       "title": "V&A Waterfront to Table Mountain",
       "date": "16 Apr · 12:45",
-      "amount": "R120.00",
+      "amount": "R 120.00",
       "icon": Icons.directions_car,
       "pickup": "V&A Waterfront, Cape Town",
       "drop": "Table Mountain, Cape Town",
@@ -34,7 +35,7 @@ class ActivityScreen extends StatelessWidget {
     {
       "title": "University of Pretoria to Menlyn Mall",
       "date": "14 Apr · 08:30",
-      "amount": "R75.00",
+      "amount": "R 75.00",
       "icon": Icons.directions_car,
       "pickup": "University of Pretoria, Pretoria",
       "drop": "Menlyn Park Mall, Pretoria",
@@ -46,7 +47,7 @@ class ActivityScreen extends StatelessWidget {
     {
       "title": "Nelson Mandela Square to Montecasino",
       "date": "13 Apr · 19:20",
-      "amount": "R110.00",
+      "amount": "R 110.00",
       "icon": Icons.directions_car,
       "pickup": "Nelson Mandela Square, Sandton",
       "drop": "Montecasino, Fourways",
@@ -58,7 +59,7 @@ class ActivityScreen extends StatelessWidget {
     {
       "title": "King Shaka Airport to Gateway Mall",
       "date": "10 Apr · 07:15",
-      "amount": "R90.00",
+      "amount": "R 90.00",
       "icon": Icons.directions_car,
       "pickup": "King Shaka International Airport, Durban",
       "drop": "Gateway Theatre of Shopping, Durban",
@@ -88,14 +89,11 @@ class ActivityScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: ListView.separated(
-          padding: const EdgeInsets.fromLTRB(
-            12,
-            12,
-            12,
-            24,
-          ), // Add more bottom padding here
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
           itemCount: activities.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          separatorBuilder:
+              (_, __) => SizedBox(height: getProportionateScreenHeight(5)),
+
           itemBuilder: (context, index) {
             final activity = activities[index];
             final isCancelled = activity['amount'].toString().contains(
@@ -109,7 +107,7 @@ class ActivityScreen extends StatelessWidget {
               ),
               elevation: 1,
               child: Padding(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -150,7 +148,7 @@ class ActivityScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: getProportionateScreenHeight(8)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -167,7 +165,7 @@ class ActivityScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: getProportionateScreenHeight(8)),
                     Align(
                       alignment: Alignment.centerRight,
                       child: ElevatedButton.icon(

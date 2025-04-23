@@ -42,7 +42,7 @@ class _RideOptionsScreenState extends State<RideOptionsScreen> {
       description: 'Quick Bike rides',
       time: '2 mins away',
       dropTime: 'Drop 1:18 am',
-      price: '₹150',
+      price: 'R 150',
       isFastest: true,
       maxPassengers: 1,
     ),
@@ -52,7 +52,7 @@ class _RideOptionsScreenState extends State<RideOptionsScreen> {
       description: 'Quick Standard Cab rides',
       time: '4 mins',
       dropTime: 'Drop 1:21 am',
-      price: '₹200',
+      price: 'R 200',
       maxPassengers: 3,
     ),
     RideOption(
@@ -61,7 +61,7 @@ class _RideOptionsScreenState extends State<RideOptionsScreen> {
       description: 'Secure rides',
       time: '2 mins',
       dropTime: 'Drop 1:19 am',
-      price: '₹300',
+      price: 'R 300',
       maxPassengers: 4,
     ),
     RideOption(
@@ -70,7 +70,7 @@ class _RideOptionsScreenState extends State<RideOptionsScreen> {
       description: 'Comfortable rides',
       time: '2 mins',
       dropTime: 'Drop 1:19 am',
-      price: '₹250',
+      price: 'R 250',
       maxPassengers: 4,
     ),
   ];
@@ -324,6 +324,8 @@ class _RideOptionsScreenState extends State<RideOptionsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false, // Add this line
+
       key: _scaffoldKey,
 
       backgroundColor: AppColor.backgroundColor,
@@ -383,18 +385,22 @@ class _RideOptionsScreenState extends State<RideOptionsScreen> {
           ),
 
           // Payment and booking section
-          _BottomBookingSection(
-            paymentMethod: _selectedPaymentMethod,
-            onPaymentPressed: () => _showPaymentBottomSheet(context),
-            bookingEnabled: _selectedOptionIndex != null,
-            bookingText:
-                _selectedOptionIndex != null
-                    ? 'Book ${_rideOptions[_selectedOptionIndex!].type}'
-                    : 'Select a ride',
-            onBookingPressed:
-                _selectedOptionIndex != null
-                    ? () => _navigateToConfirmation()
-                    : null,
+          SafeArea(
+            top: false,
+
+            child: _BottomBookingSection(
+              paymentMethod: _selectedPaymentMethod,
+              onPaymentPressed: () => _showPaymentBottomSheet(context),
+              bookingEnabled: _selectedOptionIndex != null,
+              bookingText:
+                  _selectedOptionIndex != null
+                      ? 'Book ${_rideOptions[_selectedOptionIndex!].type}'
+                      : 'Select a ride',
+              onBookingPressed:
+                  _selectedOptionIndex != null
+                      ? () => _navigateToConfirmation()
+                      : null,
+            ),
           ),
         ],
       ),
@@ -610,7 +616,7 @@ class _BottomBookingSection extends StatelessWidget {
       children: [
         const SizedBox(height: 10),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
           child: InkWell(
             onTap: onPaymentPressed,
             child: Row(
