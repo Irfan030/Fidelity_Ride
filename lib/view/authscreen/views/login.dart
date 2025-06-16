@@ -5,15 +5,25 @@ import 'package:fidelityride/theme/colors.dart';
 import 'package:fidelityride/widget/defaultButton.dart';
 import 'package:fidelityride/widget/defaultTextInput.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../controller/authController.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final controller = Get.put(LoginController());
   final _formKey = GlobalKey<FormState>();
   String phone = "";
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   label: "Mobile Number",
                                   onChange: (value) {
                                     setState(() {
-                                      phone = value;
+                                      controller.phone = value;
                                     });
                                   },
                                   validator: AppData.isInvalidPhoneNo(phone),
@@ -141,12 +151,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                   borderColor: AppColor.mainColor,
 
                                   press: () {
-                                    if (_formKey.currentState!.validate()) {
+                                    controller.login();
+                                    /* if (_formKey.currentState!.validate()) {
                                       Navigator.pushNamed(
                                         context,
                                         RoutePath.otpVerification,
                                       );
-                                    }
+                                    } */
                                   },
                                 ),
 
