@@ -1,8 +1,8 @@
 import 'package:fidelityride/route/routePath.dart';
 import 'package:fidelityride/view/account/notification.dart';
-import 'package:fidelityride/view/authscreen/login.dart';
-import 'package:fidelityride/view/authscreen/otpscreen.dart';
-import 'package:fidelityride/view/authscreen/signup.dart';
+import 'package:fidelityride/view/authscreen/views/login.dart';
+import 'package:fidelityride/view/authscreen/views/otpscreen.dart';
+import 'package:fidelityride/view/authscreen/views/signup.dart';
 import 'package:fidelityride/view/home/home.dart';
 import 'package:fidelityride/view/home/mainScreen.dart';
 import 'package:fidelityride/view/pickupdrop/pickupdropscreen.dart';
